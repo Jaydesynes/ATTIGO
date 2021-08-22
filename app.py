@@ -39,23 +39,27 @@ class Registration(db.Model):
 
 @app.route('/', methods = ["GET", "POST"])
 def home():
-    if "user" in session:
-        if request.form:
-            firstname = request.form.get("firstname")
-            lastname = request.form.get("lastname")
-            email = request.form.get("email")
-            dateAdded = request.form.get("date")
-            print(dateAdded)
+    # land = Attendance.query.all()
+    return render_template("index.html")
 
-            fellow = Attendance(firstname=firstname, lastname=lastname, email=email)
-            db.session.add(fellow)
-            db.session.commit()
+
+    # if "user" in session:
+    #     if request.form:
+    #         firstname = request.form.get("firstname")
+    #         lastname = request.form.get("lastname")
+    #         email = request.form.get("email")
+    #         dateAdded = request.form.get("date")
+    #         print(dateAdded)
+
+    #         fellow = Attendance(firstname=firstname, lastname=lastname, email=email)
+    #         db.session.add(fellow)
+    #         db.session.commit()
         
-        # fellows = Attendance.query.all()
+    #     # fellows = Attendance.query.all()
 
-        return render_template("index.html")
-    else:
-        return redirect(url_for('login'))
+    #     return render_template("index.html")
+    # else:
+    #     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -75,6 +79,27 @@ def login():
     elif "user" in session:
         return redirect(url_for('home'))
     return render_template('login.html')
+
+@app.route('/register', methods =['GET', 'POST'])
+def register():
+    message = ''
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+
+        if account:
+            message = 'this account already exists'
+        elif not username or not password or not email:
+            message = 'Please fill all fields'
+        else:
+            cursor.execute('INSERT INTO accounts VALUES (NULL, % s, % s, % s)', (username, password, email, ))
+            mysql.connection.commit()
+            message = 'You have successfully registered !'
+    elif request.method == 'POST':
+        message = 'Please fill out the form'
+    return render_template('register.html', msg = message)
+
 
 @app.route('/logout')
 def logout():
